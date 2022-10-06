@@ -4,7 +4,7 @@ import Animated, {
   interpolate,
   Extrapolate,
   useAnimatedStyle,
-  useAnimatedReaction,
+  useAnimatedProps,
   useAnimatedGestureHandler,
   runOnJS,
 } from 'react-native-reanimated';
@@ -102,15 +102,15 @@ const BottomSheetBackdropComponent = ({
   //#endregion
 
   //#region effects
-  useAnimatedReaction(
-    () => animatedIndex.value <= disappearsOnIndex,
-    (shouldDisableTouchability, previous) => {
-      if (shouldDisableTouchability === previous) {
-        return;
-      }
-      runOnJS(handleContainerTouchability)(shouldDisableTouchability);
-    },
-    [disappearsOnIndex]
+  const animatedProps = useAnimatedProps<{
+    pointerEvents: ViewProps['pointerEvents'];
+  }>(
+    () => {
+      return ({
+      pointerEvents: animatedIndex.value < 0 ? 'none' : 'auto',
+    })
+  },
+    [animatedIndex, disappearsOnIndex]
   );
   //#endregion
 
@@ -118,7 +118,7 @@ const BottomSheetBackdropComponent = ({
     <TapGestureHandler onGestureEvent={gestureHandler}>
       <Animated.View
         style={containerStyle}
-        pointerEvents={pointerEvents}
+        animatedProps={animatedProps}
         accessible={true}
         accessibilityRole="button"
         accessibilityLabel="Bottom Sheet backdrop"
